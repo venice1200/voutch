@@ -1,6 +1,7 @@
 ;==============================================================
 ; K-1008 VISABLE MEMORY - Character Display Routines
-; MTU K-1008 mapped at $C000-$DFFF
+; MTU K-1008 mapped at $C000-$DFFF but easily configurable
+; by changing the VMBASE value to your needs
 ;
 ; Display: 320 x 200 pixels, 40 bytes/scanline
 ; Text:    40 columns x 25 rows, 8x8 pixel characters
@@ -36,6 +37,7 @@
 
 ; ---- Hardware config (match your DIP switch setting) -------
 VMBASE  = $C000         ; video RAM base  ($C000-$DFFF)
+VMBASEH = >VMBASE       ; Calculated Video RAM Base High Byte
 VWIDTH  = 40            ; bytes per pixel scanline (320/8)
 VCOLS   = 40            ; text columns
 VROWS   = 25            ; text rows  (25 * 8 = 200 scanlines exactly)
@@ -275,31 +277,32 @@ VSCR3:  STA  (VDST),Y          ; clear $DF00-$DF3F (64 bytes)
 ; Index with: LDA VROW / ASL A / TAX / LDA VROWTBL,X
 ;==============================================================
 VROWTBL:
-        .byte $00,$C0     ; row  0  $C000
-        .byte $40,$C1     ; row  1  $C140
-        .byte $80,$C2     ; row  2  $C280
-        .byte $C0,$C3     ; row  3  $C3C0
-        .byte $00,$C5     ; row  4  $C500
-        .byte $40,$C6     ; row  5  $C640
-        .byte $80,$C7     ; row  6  $C780
-        .byte $C0,$C8     ; row  7  $C8C0
-        .byte $00,$CA     ; row  8  $CA00
-        .byte $40,$CB     ; row  9  $CB40
-        .byte $80,$CC     ; row 10  $CC80
-        .byte $C0,$CD     ; row 11  $CDC0
-        .byte $00,$CF     ; row 12  $CF00
-        .byte $40,$D0     ; row 13  $D040
-        .byte $80,$D1     ; row 14  $D180
-        .byte $C0,$D2     ; row 15  $D2C0
-        .byte $00,$D4     ; row 16  $D400
-        .byte $40,$D5     ; row 17  $D540
-        .byte $80,$D6     ; row 18  $D680
-        .byte $C0,$D7     ; row 19  $D7C0
-        .byte $00,$D9     ; row 20  $D900
-        .byte $40,$DA     ; row 21  $DA40
-        .byte $80,$DB     ; row 22  $DB80
-        .byte $C0,$DC     ; row 23  $DCC0
-        .byte $00,$DE     ; row 24  $DE00
+        ;Calculated Row values
+        .byte $00,VMBASEH+$00     ; row  0  $C000
+        .byte $40,VMBASEH+$01     ; row  1  $C140
+        .byte $80,VMBASEH+$02     ; row  2  $C280
+        .byte $C0,VMBASEH+$03     ; row  3  $C3C0
+        .byte $00,VMBASEH+$05     ; row  4  $C500
+        .byte $40,VMBASEH+$06     ; row  5  $C640
+        .byte $80,VMBASEH+$07     ; row  6  $C780
+        .byte $C0,VMBASEH+$08     ; row  7  $C8C0
+        .byte $00,VMBASEH+$0A     ; row  8  $CA00
+        .byte $40,VMBASEH+$0B     ; row  9  $CB40
+        .byte $80,VMBASEH+$0C     ; row 10  $CC80
+        .byte $C0,VMBASEH+$0D     ; row 11  $CDC0
+        .byte $00,VMBASEH+$0F     ; row 12  $CF00
+        .byte $40,VMBASEH+$10     ; row 13  $D040
+        .byte $80,VMBASEH+$11     ; row 14  $D180
+        .byte $C0,VMBASEH+$12     ; row 15  $D2C0
+        .byte $00,VMBASEH+$14     ; row 16  $D400
+        .byte $40,VMBASEH+$15     ; row 17  $D540
+        .byte $80,VMBASEH+$16     ; row 18  $D680
+        .byte $C0,VMBASEH+$17     ; row 19  $D7C0
+        .byte $00,VMBASEH+$19     ; row 20  $D900
+        .byte $40,VMBASEH+$1A     ; row 21  $DA40
+        .byte $80,VMBASEH+$1B     ; row 22  $DB80
+        .byte $C0,VMBASEH+$1C     ; row 23  $DCC0
+        .byte $00,VMBASEH+$1E     ; row 24  $DE00
 
 ;==============================================================
 ; VFONT - 8x8 bitmap font, ASCII $20-$5F (64 characters)
