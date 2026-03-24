@@ -36,7 +36,7 @@
 ;==============================================================
 
 ; ---- Hardware config (match your DIP switch setting) -------
-VMBASE  = $C000         ; video RAM base  ($C000-$DFFF)
+VMBASE  = $C000         ; Video RAM base  ($C000-$DFFF)
 VMBASEH = >VMBASE       ; Calculated Video RAM Base High Byte
 VWIDTH  = 40            ; bytes per pixel scanline (320/8)
 VCOLS   = 40            ; text columns
@@ -66,9 +66,9 @@ VINIT:
 ;        Does NOT reset cursor position.
 ;==============================================================
 VCLR:
-        LDA  #<VMBASE
+        LDA  #<VMBASE           ; VM Base Low Byte
         STA  VDST
-        LDA  #>VMBASE
+        LDA  #>VMBASE           ; VM Base High Byte
         STA  VDST1
         LDA  #0                 ; fill value: black
         LDX  #$20               ; 32 pages x 256 bytes = 8192
