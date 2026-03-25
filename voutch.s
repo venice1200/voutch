@@ -36,7 +36,7 @@
 ;==============================================================
 
 ; ---- Hardware config (match your DIP switch setting) -------
-VMBASE  = $A000         ; Full Video RAM Base  ($C000-$DFFF)
+VMBASE  = $C000         ; Full Video RAM Base  ($C000-$DFFF)
 VMBASEH = >VMBASE       ; Calculated Video RAM Base High Byte
 VWIDTH  = 40            ; bytes per pixel scanline (320/8)
 VCOLS   = 40            ; text columns
