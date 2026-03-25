@@ -1,7 +1,7 @@
 ;==============================================================
 ; K-1008 VISABLE MEMORY - Character Display Routines
 ; MTU K-1008 mapped at $C000-$DFFF but easily configurable
-; by changing the VMBASE value to your needs
+; by chaging the VMBASE value to your needs
 ;
 ; Display: 320 x 200 pixels, 40 bytes/scanline
 ; Text:    40 columns x 25 rows, 8x8 pixel characters
@@ -36,7 +36,7 @@
 ;==============================================================
 
 ; ---- Hardware config (match your DIP switch setting) -------
-VMBASE  = $C000         ; Video RAM base  ($C000-$DFFF)
+VMBASE  = $8000         ; Full Video RAM Base  ($C000-$DFFF)
 VMBASEH = >VMBASE       ; Calculated Video RAM Base High Byte
 VWIDTH  = 40            ; bytes per pixel scanline (320/8)
 VCOLS   = 40            ; text columns
@@ -50,12 +50,20 @@ VPTR    = $E2           ; font pointer lo
 VPTR1   = $E3           ; font pointer hi
 VDST    = $E4           ; screen dest lo
 VDST1   = $E5           ; screen dest hi
+BUFF    = $E6           ; Buffer Byte
 
 ;==============================================================
 ; VINIT - clear display and home cursor.
 ;         Call once at startup before using VOUTCH.
 ;==============================================================
 VINIT:
+        ;----------------------------------------------------
+        PHA                     ; Rescue A
+        TXA                     ; Rescue X
+        PHA                     ;
+        TYA                     ; Rescue Y
+        PHA                     ;
+        ;----------------------------------------------------
         LDA  #0
         STA  VCOL
         STA  VROW
@@ -79,6 +87,13 @@ VCLR1:  STA  (VDST),Y
         INC  VDST1
         DEX
         BNE  VCLR1              ; outer: 32 pages
+        ;----------------------------------------------------
+        PLA                     ;
+        TAY                     ; Restore Y
+        PLA                     ; 
+        TAX                     ; Restore X
+        PLA                     ; Restore A
+        ;----------------------------------------------------
         RTS
 
 ;==============================================================
@@ -90,7 +105,14 @@ VCLR1:  STA  (VDST),Y
 ; Exit:   A, X, Y modified; VCOL/VROW updated
 ;==============================================================
 VOUTCH:
+        STA BUFF                ; Rescue A to BUFFER
+        ;----------------------------------------------------
+        TXA                     ; Rescue X
+        PHA                     ;
+        TYA                     ; Rescue Y
+        PHA                     ;
         ; ---- backspace ------------------------------------
+        LDA BUFF                ; Restore A from BUFFER
         CMP  #$08
         BNE  VNOTBS
         JMP  VBKSP
@@ -202,6 +224,12 @@ VCRLF:
         STA  VROW
 
 VOUT_RTS:
+        ;----------------------------------------------------
+        PLA                     ;
+        TAY                     ; Restore Y
+        PLA                     ; 
+        TAX                     ; Restore X
+        ;----------------------------------------------------
         RTS
 
 ;==============================================================
@@ -275,6 +303,7 @@ VSCR3:  STA  (VDST),Y          ; clear $DF00-$DF3F (64 bytes)
 ;
 ; Row N base = VMBASE + N * 320  (N=0..24)
 ; Index with: LDA VROW / ASL A / TAX / LDA VROWTBL,X
+; Note: VMBASE = VMBASEH*$100
 ;==============================================================
 VROWTBL:
         ;Calculated Row values
